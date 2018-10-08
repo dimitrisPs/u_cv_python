@@ -1,3 +1,4 @@
+# noise.py
 """Functions to add noise to images."""
 
 import numpy as np
@@ -73,4 +74,4 @@ def add_noise_gaussian(src, var=1):
     # the the output will be a gray image.
     noise = np.uint8(noise)
     # Add the src image and the noise and return.
-    return noise
+    return noise + src
