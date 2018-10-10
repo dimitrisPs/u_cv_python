@@ -1,7 +1,7 @@
 # pso.py
 """Problem set 0 solutions."""
 import cv2
-
+import numpy as np
 
 
 def swap_channels(src, ch_id1, ch_id2):
@@ -126,5 +126,53 @@ def problem3():
     cv2.imwrite('./output/ps0-3-a-1.png', src1)
 
 
+def problem4():
+    """Solution to 4th part of ps0."""
+    # Read the image file.
+    src1 = cv2.imread('./input/ps0-1-a-1.png')
+    # Extract the green channel and consive it as grayscale image of original.
+    img1_green = extract_channel(src1, 2)
+    # Use numpy functions to extract max, min, mean, standard deviation of
+    # green channel and print them.
+    print('max pixel value is ' + str(np.max(img1_green)) +
+          '\nmin pixel value is ' + str(np.min(img1_green)) + '\nmean is ' +
+          str(np.mean(img1_green)) + '\n standard deviation is ' +
+          str(np.std(img1_green)))
+    # Create a matrix with every element the mean value of green channel. The
+    # size of this matrix will be the same as the green channel.
+    mean_mat = np.full(img1_green.shape, np.uint8(np.mean(img1_green)))
+    # Substruct mean_matrix from the grayscale image(green channel).
+    result = img1_green - mean_mat
+    std = np.std(img1_green)
+    # Devide every element of the result matrix with the standard deviation of
+    # green channel.
+    for index, value in np.ndenumerate(result):
+        result[index] = np.uint8(value/std)
+    # Multiply the result matrix with the integer 10.
+    result *= 10
+    # Add mean matrix to the result matrix.
+    result += mean_mat
+    # Save the resulting image to a file.
+    cv2.imwrite('./output/ps0-4-b-1.png', result)
+    # Create a matrix to perform the 2 pixel shift. The matrix represents a 2D
+    # affine transformation.
+    m = np.array([[1., 0., -2.], [0., 1., 0.]])
+    rows, cols = img1_green.shape
+    # Translate the image according to the transformation matrix m.
+    shift_img = cv2.warpAffine(img1_green, m, (cols, rows))
+    # Save the resulting image to a file.
+    cv2.imwrite('./output/ps0-4-c-1.png', shift_img)
+    # Substruct The shfted grayscale image from the original grayscale image.
+    diff_shift_img = img1_green - shift_img
+    # Save the resulting image to a file.
+    cv2.imwrite('./output/ps0-4-d-1.png', diff_shift_img)
+    # For display perposes, uncoment the next 5 lines.
+    # cv2.imshow('result', result)
+    # cv2.imshow('shifted', shift_img)
+    # cv2.imshow('diff', diff_shift_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+
 if __name__ == '__main__':
-    problem3()
+    problem4()
