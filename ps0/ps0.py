@@ -14,15 +14,15 @@ def swap_channels(src, ch_id1, ch_id2):
     src: np.array
         The input image.
     ch1: int [0-2]
-        The number of the first channel.
-            ch_id1 = 0 : red channel.
+        The number of the first channel. For bgr, the ids are:
+            ch_id1 = 0 : blue channel.
             ch_id1 = 1 : green channel.
-            ch_id1 = 2 : blue channel.
+            ch_id1 = 2 : red channel.
     ch2: int [0-2]
-        The number of the second channel.
-            ch_id2 = 0 : red channel.
+        The number of the second channel. For bgr, the ids are:
+            ch_id2 = 0 : blue channel.
             ch_id2 = 1 : green channel.
-            ch_id2 = 2 : blue channel.
+            ch_id2 = 2 : red channel.
 
     Returns
     -------
