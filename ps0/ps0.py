@@ -86,40 +86,6 @@ def center_patch_loc(src, patch_height, patch_width):
     return [patch_row_min, patch_col_min]
 
 
-def add_noise_gaussian_mono(src, sigma=10):
-    """
-    Add gaussian noise to one channel image.
-
-    Parameters
-    ----------
-    src : np.array
-        The image to introduce noise.
-    sigma : float
-        The standard deviation of the gaussian noise.
-
-    Returns
-    -------
-    np.array
-        The original image with gaussian noise.
-
-    """
-    rows, cols = src.shape
-    # Create a random image with the parameters of the gaussian destribution
-    # needed.
-    mean = 0
-    noise = np.random.normal(mean, sigma, (rows, cols))
-    out = np.int16(src) + np.int16(noise)
-    # Add noise to src image.
-    # The folowing 6 lines is for testing the statistics of the noise.
-    # print(np.mean(mean))
-    # print(np.std(noise))
-    # print(np.min(noise))
-    # print(np.max(noise))
-    # plt.hist(noise.ravel(), 256, [-125, 125])
-    # plt.show()
-    return np.uint8(out)
-
-
 def problem2():
     """Solution to the second part of ps0."""
     src1 = cv2.imread('./input/ps0-1-a-1.png')
