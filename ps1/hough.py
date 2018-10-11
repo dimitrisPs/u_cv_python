@@ -2,27 +2,39 @@
 import cv2
 import numpy as np
 
-# def hough_peaks(H, threshold=20, peakArea=1):
-#     """
-#     Find peaks in a Hough accumulator array.
-#
-#     Parameters
-#     ----------
-#     H : np.array
-#         Hough accumulator array to search for peaks.
-#     Threshold : {20, int}, optional
-#         The threshold value to determine if a cell in the Hough accumulator
-#         represents a line. The default value is 20.
-#     peakArea : {1, int}, optional
-#         The number of neighbor pixel to consider when compute peaks. The pixel
-#         connectivity is according the moore neighborhood. Default value is 0.
-#
-#     Returns
-#     -------
-#     A list with the location of peaks in Hough accumulator. in terms of d and
-#     theta and their corresponting pixel locations in H.
-#
-#     """
+
+def hough_peaks(H, threshold=150, peakArea=1):
+    """
+    Find peaks in a Hough accumulator array.
+
+    Parameters
+    ----------
+    H : np.array
+        Hough accumulator array to search for peaks.
+    Threshold : {20, int}, optional
+        The threshold value to determine if a cell in the Hough accumulator
+        represents a line. The default value is 20.
+    peakArea : {1, int}, optional
+        The number of neighbor pixel to consider when compute peaks. The pixel
+        connectivity is according the moore neighborhood. Default value is 0.
+
+    Returns
+    -------
+    A list with the location of peaks in Hough accumulator. in terms of d and
+    theta and their corresponting pixel locations in H.
+
+    """
+    rows, cols = H.shape
+    diagonal = np.sqrt(rows**2 + cols**2)
+    points = []
+    for index, pixel in np.ndenumerate(H):
+        if pixel > threshold:
+            # Compute theta and d
+            theta = index[1] / float(cols) * np.pi
+            d = index[0]/float(rows) * diagonal
+            points.append(((d, theta), index))
+    return points
+
 
 # def hough_lines_draw(src, hough_peaks):
 #     """
@@ -159,11 +171,18 @@ def enchance_acc(H):
 #     """
 
 
+
 if __name__ == '__main__':
     # For testing.
     src = cv2.imread('./input/1.png')
     edge_img = cv2.Canny(src, 100, 200)
-    H = hough_lines_acc(edge_img,100,100)
-    cv2.imshow('hough', H)
+    H = hough_lines_acc(edge_img, 200, 200)
+    peaks = hough_peaks(H)
+    h_e = enchance_acc(H)
+    for param, pixel in peaks:
+        print (pixel)
+        cv2.circle(h_e, (pixel[1], pixel[0]), 3, (255, 255, 255), 2)
+    # cv2.imshow('hough', H)
+    cv2.imshow('hough2', h_e)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
