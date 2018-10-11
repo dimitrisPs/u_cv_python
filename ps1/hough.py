@@ -62,11 +62,19 @@ def hough_lines_acc(src, step_theta=None, step_d=None):
     np.array
         The hough accumulator for lines.
     """
-    rows, cols = src.shape
+    if step_theta is None:
+        cols = src.shape[1]
+    else:
+        cols = step_theta
+    if step_d is None:
+        rows = src.shape[0]
+    else:
+        rows = step_d
     # Create an empty array, the size of src.
-    H = np.zeros(src.shape, dtype=float)
+    H = np.zeros((rows, cols), dtype=float)
     # Compute the maximum r. diagonal is the max d of any line in the image
-    diagonal = np.sqrt(rows**2 + cols**2)
+    r, c = src.shape
+    diagonal = np.sqrt(r**2 + c**2)
     # For every edge pixel in src, compute it's hough transform for lines and
     # update H.
     for index, pixel in np.ndenumerate(src):
@@ -83,7 +91,9 @@ def hough_lines_acc(src, step_theta=None, step_d=None):
                 # Compute d.
                 d = x*np.cos(theta) + y*np.sin(theta)
                 # Map d to an index in accumulator matrix.
-                d = np.int(d/(diagonal)*(rows))
+                d = np.int((d/diagonal)*(rows))
+                if d < 0:
+                    continue
                 # Increse the corresponting bucket.
                 H[d, theta_cell] += 1
     # Normalize Hough transform.
@@ -92,27 +102,7 @@ def hough_lines_acc(src, step_theta=None, step_d=None):
     return H
 
 
-def enchance_acc(H):
-    """
-    Enchance accumulator matrix, using histogram equalization.
 
-    This must be used only for visual representation perpose. The histogram is
-    equalized using CLAHE method.
-
-    Parameters
-    ----------
-    H : np.array
-        Accumulator matrix from Houng transformation.
-
-    Returns
-    -------
-    np.array
-        Enchanced accumulator matrix.
-
-    """
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    cl1 = clahe.apply(H)
-    return np.uint8(cl1)
 
 # def hough_circles_acc(src, r):
 #     """
@@ -151,9 +141,9 @@ def enchance_acc(H):
 
 if __name__ == '__main__':
     # For testing.
-    src = cv2.imread('./input/4.png')
+    src = cv2.imread('./input/1.png')
     edge_img = cv2.Canny(src, 100, 200)
-    H = hough_lines_acc(edge_img)
+    H = hough_lines_acc(edge_img,100,100)
     cv2.imshow('hough', H)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
