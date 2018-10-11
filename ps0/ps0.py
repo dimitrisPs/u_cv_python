@@ -2,6 +2,7 @@
 """Problem set 0 solutions."""
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def swap_channels(src, ch_id1, ch_id2):
@@ -83,6 +84,40 @@ def center_patch_loc(src, patch_height, patch_width):
     patch_col_min = int(center_col - patch_width/2)
 
     return [patch_row_min, patch_col_min]
+
+
+def add_noise_gaussian_mono(src, sigma=10):
+    """
+    Add gaussian noise to one channel image.
+
+    Parameters
+    ----------
+    src : np.array
+        The image to introduce noise.
+    sigma : float
+        The standard deviation of the gaussian noise.
+
+    Returns
+    -------
+    np.array
+        The original image with gaussian noise.
+
+    """
+    rows, cols = src.shape
+    # Create a random image with the parameters of the gaussian destribution
+    # needed.
+    mean = 0
+    noise = np.random.normal(mean, sigma, (rows, cols))
+    out = np.int16(src) + np.int16(noise)
+    # Add noise to src image.
+    # The folowing 6 lines is for testing the statistics of the noise.
+    # print(np.mean(mean))
+    # print(np.std(noise))
+    # print(np.min(noise))
+    # print(np.max(noise))
+    # plt.hist(noise.ravel(), 256, [-125, 125])
+    # plt.show()
+    return np.uint8(out)
 
 
 def problem2():
@@ -174,5 +209,34 @@ def problem4():
     # cv2.destroyAllWindows()
 
 
+def problem5():
+    """Solution to the 5th part of ps0."""
+    # Read the imput image.
+    src = cv2.imread('./input/ps0-1-a-1.png')
+    # Add gaussian noise to the original image.
+    # Create noise channels
+    mean = np.array([0, 0, 0])
+    sigma = np.array([5, 5, 5])
+    noise = np.zeros(src.shape, dtype=np.int8)
+    cv2.randn(noise, mean, sigma)
+    # Copy the src image to create the noise images.
+    g_noise_green = src.copy()
+    g_noise_blue = src.copy()
+    # Add the noise to blue and green channel of output images. The images are
+    # color encoded as bgr. Blue channel id is 0 and green channel is 1.
+    g_noise_green[:, :, 1] = np.uint8(g_noise_green[:, :, 1] + noise[:, :, 1])
+    g_noise_blue[:, :, 0] = np.uint8(g_noise_blue[:, :, 0] + noise[:, :, 0])
+    # Uncoment the next 4 line to display the ouput images.
+    # cv2.imshow('noise green', g_noise_green)
+    # cv2.imshow('noise blue', g_noise_blue)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    cv2.imwrite('./output/ps0-5-a-1.png', g_noise_green)
+    cv2.imwrite('./output/ps0-5-b-1.png', g_noise_blue)
+
+
 if __name__ == '__main__':
-    problem4()
+    # problem2()
+    # problem3()
+    # problem4()
+    problem5()
