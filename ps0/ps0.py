@@ -46,10 +46,10 @@ def extract_channel(src, ch_id):
         src: np.array
             the src image
         ch_id: int [0-1]
-            The id of the channel you need to extract.
-            ch_id = 0 : red channel.
+            The id of the channel you need to extract. For bgr, the ids are:
+            ch_id = 0 : blue channel.
             ch_id = 1 : green channel.
-            ch_id = 2 : blue channel.
+            ch_id = 2 : red channel.
 
     Returns
     -------
