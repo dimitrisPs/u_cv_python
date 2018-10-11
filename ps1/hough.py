@@ -92,8 +92,6 @@ def hough_lines_acc(src, step_theta=None, step_d=None):
                 d = x*np.cos(theta) + y*np.sin(theta)
                 # Map d to an index in accumulator matrix.
                 d = np.int((d/diagonal)*(rows))
-                if d < 0:
-                    continue
                 # Increse the corresponting bucket.
                 H[d, theta_cell] += 1
     # Normalize Hough transform.
@@ -101,6 +99,28 @@ def hough_lines_acc(src, step_theta=None, step_d=None):
     H = np.uint8(H)
     return H
 
+
+def enchance_acc(H):
+    """
+    Enchance accumulator matrix, using histogram equalization.
+
+    This must be used only for visual representation perpose. The histogram is
+    equalized using CLAHE method.
+
+    Parameters
+    ----------
+    H : np.array
+        Accumulator matrix from Houng transformation.
+
+    Returns
+    -------
+    np.array
+        Enchanced accumulator matrix.
+
+    """
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    cl1 = clahe.apply(H)
+    return np.uint8(cl1)
 
 
 
