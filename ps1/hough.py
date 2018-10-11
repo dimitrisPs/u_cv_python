@@ -92,7 +92,27 @@ def hough_lines_acc(src, step_theta=None, step_d=None):
     return H
 
 
+def enchance_acc(H):
+    """
+    Enchance accumulator matrix, using histogram equalization.
 
+    This must be used only for visual representation perpose. The histogram is
+    equalized using CLAHE method.
+
+    Parameters
+    ----------
+    H : np.array
+        Accumulator matrix from Houng transformation.
+
+    Returns
+    -------
+    np.array
+        Enchanced accumulator matrix.
+
+    """
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    cl1 = clahe.apply(H)
+    return np.uint8(cl1)
 
 # def hough_circles_acc(src, r):
 #     """
