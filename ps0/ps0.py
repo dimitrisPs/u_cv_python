@@ -125,7 +125,7 @@ def problem2():
     src1 = cv2.imread('./input/ps0-1-a-1.png')
     swapped = swap_channels(src1, 0, 2)
     img1_green = extract_channel(src1, 1)
-    img1_red = extract_channel(src1, 0)
+    img1_red = extract_channel(src1, 2)
     # In case you need to display the results, uncommend the next 6 lines.
     # cv2.imshow('src', src1)
     # cv2.imshow('swapped', swapped)
