@@ -293,7 +293,6 @@ def enchance_acc(H):
     return np.uint8(cl1)
 
 
-
 # def hough_circles_acc(src, r):
 #     """
 #     Computes the Hough transformation for circles in the input image.
