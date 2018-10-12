@@ -51,7 +51,51 @@ def problem2():
     cv2.destroyAllWindows()
 
 
+def problem3():
+    """Solution ot part 3 of ps1."""
+    # Load the input image.
+    src = cv2.imread('./input/ps1-input0-noise.png')
+    # Remove noise with gaussian filter.
+    src_smooth = cv2.GaussianBlur(src, (19, 19), 5)
+    # Save smouthed image.
+    cv2.imwrite('./output/ps1-3-a-1.png', src_smooth)
+    # Compute the edge images using canny edge method.
+    edge_img = cv2.Canny(src, 100, 200)
+    edge_img_smoothed = cv2.Canny(src_smooth, 0, 50)
+    # Save the original and smoothed images.
+    cv2.imwrite('./output/ps1-3-b-1.png', edge_img)
+    cv2.imwrite('./output/ps1-3-b-2.png', edge_img_smoothed)
+    # Compute the Hough line transformation.
+    H = hough.hough_lines_acc(edge_img_smoothed)
+    # Perform a histogram equalization to enchance the image.
+    H_ench = hough.enchance_acc(H)
+    # Find peaks in accumulator array H.
+    peaks = hough.hough_peaks(H, edge_img.shape, 140, 0)
+    # Convert enchanced Hough image from gray to color to draw the peaks.
+    H_ench = cv2.cvtColor(H_ench, cv2.COLOR_GRAY2RGB)
+    # For each peak, draw a red dot in Hough accumulator array.
+    H_peak = H_ench.copy()
+    for param, pixel in peaks:
+        cv2.circle(H_peak, (pixel[1], pixel[0]), 2, (0, 0, 255), -1)
+    # Save the result.
+    cv2.imwrite('./output/ps1-3-c-1.png', H_peak)
+    # Draw the lines in the original image according to peaks List.
+    line_img = hough.hough_lines_draw(src, peaks)
+    # Save the result.
+    cv2.imwrite('./output/ps1-3-c-2.png', line_img)
+    # Uncoment the next 8 lines for display perposes.
+    # cv2.imshow('smoothed original', src_smooth)
+    # cv2.imshow('original edge image', edge_img)
+    # cv2.imshow('smoothed edge image', edge_img_smoothed)
+    # cv2.imshow('Hough Accumulator', H_ench)
+    # cv2.imshow('Hough Accumulator peaks', H_peak)
+    # cv2.imshow('line image', line_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+
 
 if __name__ == '__main__':
     # problem1()
-    problem2()
+    # problem2()
+    problem3()
