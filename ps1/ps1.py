@@ -159,8 +159,44 @@ def problem4():
     cv2.waitKey(0)
 
 
+def problem5():
+    """Solution to part 5 of ps1."""
+    src = cv2.imread('./input/ps1-input1.png')
+    # Convert src img from color to grayscale.
+    src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    # Smoth image using gaussina blur.
+    filtered = cv2.GaussianBlur(src_gray, (5, 5), 1.9)
+    # Compute the edge image using Canny edge detection algorithm.
+    edge_img = auto_canny(filtered, 3)
+    # Define the radiuses to check.
+    r = range(18, 30, 2)
+    # Find circles in the image.
+    peaks = hough.find_circles(edge_img, r)
+    # Make copies of grayscale to draw the resaults later.
+    out = src_gray.copy()
+    out_20 = src_gray.copy()
+    # Convert grayscale to color, in order to mark the circles in color.
+    out = cv2.cvtColor(out, cv2.COLOR_GRAY2RGB)
+    out_20 = cv2.cvtColor(out_20, cv2.COLOR_GRAY2RGB)
+    # Draw every detected circle in the grayscale src image.
+    for radius, pixel in peaks:
+        if radius == 20:
+            cv2.circle(out_20, (pixel[1], pixel[0]), 2, (0, 255, 0), -1)
+            cv2.circle(out_20, (pixel[1], pixel[0]), radius, (0, 0, 255), 2)
+        cv2.circle(out, (pixel[1], pixel[0]), 2, (0, 255, 0), -1)
+        cv2.circle(out, (pixel[1], pixel[0]), radius, (0, 0, 255), 2)
+    # Save results.
+    cv2.imwrite('./output/ps1-5-a-1.png', filtered)
+    cv2.imwrite('./output/ps1-5-a-2.png', edge_img)
+    cv2.imwrite('./output/ps1-5-a-3.png', out_20)
+    cv2.imwrite('./output/ps1-5-b-3.png', out)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
 if __name__ == '__main__':
     # problem1()
     # problem2()
     # problem3()
-    problem4()
+    # problem4()
+    problem5()
