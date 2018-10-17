@@ -151,6 +151,9 @@ def hough_peaks(H, src_dim, threshold=150, peakArea=0):
     points = []
     # For every pixel of H
     for index, pixel in np.ndenumerate(H):
+        # If the pixel is less than 0.8 of threshold, continue
+        if pixel < threshold:
+            continue
         # Sum the values of all the pixels with distande peakArea
         s = sum_neighbors(H, index, peakArea)
         # Normalize the sum. The normalization is done by deviding the size of
@@ -160,7 +163,7 @@ def hough_peaks(H, src_dim, threshold=150, peakArea=0):
         # Check if index pixel is peak.
         if s > threshold:
             # Compute theta and d
-            theta = index[1] / float(cols) * np.pi
+            theta = index[1] / float(cols) * np.pi * 2
             d = index[0]/float(rows) * diagonal
             points.append(((d, theta), index))
     # Remove duplicate lines. At this point, there may be peaks in Hough
@@ -257,11 +260,13 @@ def hough_lines_acc(src, step_theta=None, step_d=None):
             for theta_cell in range(cols):
                 # For every possible thera, compute d for point x,y.
                 # Convert array indexes to polar angles.
-                theta = theta_cell / float(cols) * np.pi
+                theta = theta_cell / float(cols) * np.pi * 2
                 # Compute d.
                 d = x*np.cos(theta) + y*np.sin(theta)
                 # Map d to an index in accumulator matrix.
                 d = np.int((d/diagonal)*(rows))
+                if d < 0:
+                    continue
                 # Increse the corresponting bucket.
                 H[d, theta_cell] += 1
     # Normalize Hough transform.
@@ -293,56 +298,4 @@ def enchance_acc(H):
     return np.uint8(cl1)
 
 
-# def hough_circles_acc(src, r):
-#     """
-#     Computes the Hough transformation for circles in the input image.
-#
-#     Parameters
-#     ----------
-#     src : np.array
-#         The image we want to compute the transformation of.
-#     r : The radius of the circle we need to find.
-#
-#     Returns
-#     -------
-#     np.array
-#         The hough accumulator for circles.
-#     """
-#
-#
-# def find_circles():
-#     """
-#     Find circles in given radius range using Hough transform.
-#
-#     Parameters
-#     ----------
-#     src : np.array
-#         The edge image needed to compute the transformation.
-#     rs : list
-#         A list with radiuses we need to check.
-#
-#     Returns
-#     -------
-#     List with locations and radiuses of circles in the image.
-#
-#     """
-
-
-if __name__ == '__main__':
-    # For testing.
-    src = cv2.imread('./input/ps1-input0.png')
-    edge_img = cv2.Canny(src, 100, 200)
-    H = hough_lines_acc(edge_img, 500, 500)
-    peaks = hough_peaks(H, edge_img.shape, threshold=100)
-    # peaks = duplicate_removal_2(peaks, edge_img.shape)
-    h_e = enchance_acc(H)
-    H_c = cv2.cvtColor(H, cv2.COLOR_GRAY2RGB)
-    for param, pixel in peaks:
-        cv2.circle(H_c, (pixel[1], pixel[0]), 2, (0, 0, 255), -1)
-    line_img = hough_lines_draw(src, peaks)
-    # cv2.imshow('hough', H_c)
-    cv2.imwrite('./output/line_image.png', line_img)
-    cv2.imwrite('./output/hough.png', H_c)
-    # cv2.imshow('hough2', h_e)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+# if __name__ == '__main__':
