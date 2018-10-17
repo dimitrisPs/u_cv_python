@@ -1,6 +1,39 @@
 """Implementation of problem set 1."""
 import cv2
 import hough
+import numpy as np
+
+
+def auto_canny(image, sigma=0.33):
+    """
+    Zero parameter edge extractor, using Canny algorithm.
+
+    More information about this method can be found here:
+    https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+
+    Parameters
+    ----------
+    image : np.array
+        Image to apply Canny edge detection algorithm.
+    sigma : float
+        standard deviation of the log kernel.
+
+    Return
+    ------
+    edge : np.Array
+        the edge image.
+
+    """
+    # Compute the median of the single channel pixel intensities
+    v = np.median(image)
+    # Compute the upper and lower thresholds using the computed median.
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
+    # Compute the edge image.
+    edge = cv2.Canny(image, lower, upper)
+    # return the edged image
+    return edge
+
 
 def problem1():
     """Solution to part 1 of ps1."""
@@ -94,8 +127,40 @@ def problem3():
     # cv2.destroyAllWindows()
 
 
+def problem4():
+    """Solution to the 4th part of ps1."""
+    # Load image.
+    src = cv2.imread('./input/ps1-input1.png')
+    # Create a grayscale image from original.
+    src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    # smooth image to find edges.
+    smoothed = cv2.GaussianBlur(src_gray, (5, 5), 8)
+    # extract edges using canny edge algorithm.
+    edge_img = auto_canny(smoothed, 5)
+    H = hough.hough_lines_acc(edge_img)
+    # Find peak points in Hough accumulator.
+    peaks = hough.hough_peaks(H, edge_img.shape, 190)
+    # perform histogram equalizaton to Hough accumulator to diplay it.
+    H_ench = hough.enchance_acc(H)
+    # Convert enchanced Hough image from gray to color to draw the peaks.
+    H_ench = cv2.cvtColor(H_ench, cv2.COLOR_GRAY2RGB)
+    src_gray = cv2.cvtColor(src_gray, cv2.COLOR_GRAY2RGB)
+    # For each peak, draw a red dot in Hough accumulator array.
+    H_peak = H_ench.copy()
+    for param, pixel in peaks:
+        cv2.circle(H_peak, (pixel[1], pixel[0]), 1, (0, 0, 255), -1)
+    # Draw found lines in the original image.
+    line_img = hough.hough_lines_draw(src_gray, peaks)
+    # Save the result.
+    cv2.imwrite('./output/ps1-4-a-1.png', smoothed)
+    cv2.imwrite('./output/ps1-4-b-1.png', edge_img)
+    cv2.imwrite('./output/ps1-4-c-1.png', H_peak)
+    cv2.imwrite('./output/ps1-4-c-2.png', line_img)
+    cv2.waitKey(0)
+
 
 if __name__ == '__main__':
     # problem1()
     # problem2()
-    problem3()
+    # problem3()
+    problem4()
