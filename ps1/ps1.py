@@ -194,9 +194,44 @@ def problem5():
     cv2.destroyAllWindows()
 
 
+def problem6():
+    """Solution to part 5 of ps1."""
+    # Load image.
+    src = cv2.imread('./input/ps1-input2.png')
+    # Create a grayscale image from original.
+    src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    # smooth image to find edges.
+    smoothed = cv2.GaussianBlur(src_gray, (9, 9), 1)
+    # extract edges using canny edge algorithm.
+    edge_img = auto_canny(smoothed, 2)
+    H = hough.hough_lines_acc(edge_img,)
+    # Find peak points in Hough accumulator.
+    peaks = hough.hough_peaks(H, edge_img.shape, 140)
+    # perform histogram equalizaton to Hough accumulator to diplay it.
+    H_ench = hough.enchance_acc(H)
+    # Convert enchanced Hough image from gray to color to draw the peaks.
+    H_ench = cv2.cvtColor(H_ench, cv2.COLOR_GRAY2RGB)
+    src_gray = cv2.cvtColor(src_gray, cv2.COLOR_GRAY2RGB)
+    # For each peak, draw a red dot in Hough accumulator array.
+    H_peak = H_ench.copy()
+    # Delete lines with 0 d.
+    peaks = [(param, pixel) for param, pixel in peaks if param[0] > 1]
+    for param, pixel in peaks:
+        cv2.circle(H_peak, (pixel[1], pixel[0]), 1, (0, 0, 255), -1)
+    # Draw found lines in the original image.
+    line_img = hough.hough_lines_draw(src_gray, peaks)
+    # Save the result.
+    cv2.imwrite('./test/ps1-4-a-1.png', smoothed)
+    cv2.imwrite('./test/ps1-4-b-1.png', edge_img)
+    cv2.imwrite('./test/ps1-4-c-1.png', H_peak)
+    cv2.imwrite('./test/ps1-4-c-2.png', line_img)
+    cv2.waitKey(0)
+
+
 if __name__ == '__main__':
     # problem1()
     # problem2()
     # problem3()
     # problem4()
-    problem5()
+    # problem5()
+    problem6()
