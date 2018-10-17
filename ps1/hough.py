@@ -298,4 +298,104 @@ def enchance_acc(H):
     return np.uint8(cl1)
 
 
+def hough_circles_acc(src, r):
+    """
+    Computes the Hough transformation for circles in the input image.
+
+    Parameters
+    ----------
+    src : np.array
+        The image we want to compute the transformation of.
+    r : The radius of the circle we need to find.
+
+    Returns
+    -------
+    np.array
+        The hough accumulator for circles.
+
+    """
+    theta_step = 10
+    theta_steps = np.int(360/theta_step)
+    rows, cols = src.shape
+    H = np.zeros((rows, cols), dtype=np.float)
+    for index, pixel in np.ndenumerate(src):
+        if pixel != 255:
+            continue
+        for theta in range(0, theta_steps):
+            theta = theta_step * theta * (np.pi/180)
+            x, y = index
+            a = np.int(x - r*np.cos(theta))
+            b = np.int(y + r*np.sin(theta))
+            # Wrap around the matrix
+            if b >= cols:
+                b -= cols
+            if a >= rows:
+                a -= rows
+            H[a, b] += 1
+    norm = (255.0/np.max(H))
+    H *= norm
+    H = np.uint8(H)
+    return H
+
+
+def find_circles(src, r):
+    """
+    Find circles in given radius range using Hough transform.
+
+    Parameters
+    ----------
+    src : np.array
+        The edge image needed to compute the transformation.
+    rs : list
+        A list with radiuses we need to check.
+
+    Returns
+    -------
+    List with locations and radiuses of circles in the image.
+
+    """
+    peaks = []
+    for radius in r:
+        src_d = src.copy()
+        H = hough_circles_acc(src, radius)
+        peaks_t = hough_peaks(H, src.shape, threshold=180, peakArea=0)
+        peaks_t = [[np.int(radius), pixel] for val, pixel in peaks_t]
+        peaks += peaks_t
+        peaks = duplicate_removal(peaks, src.shape)
+        src_d = cv2.cvtColor(src_d, cv2.COLOR_GRAY2RGB)
+    return peaks
+
+
+def auto_canny(image, sigma=0.33):
+    """
+    Zero parameter edge extractor, using Canny algorithm.
+
+    More information about this method can be found here:
+    https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+
+    Parameters
+    ----------
+    image : np.array
+        Image to apply Canny edge detection algorithm.
+    sigma : float
+        standard deviation of the log kernel.
+
+    Return
+    ------
+    edge : np.Array
+        the edge image.
+
+    """
+    # Compute the median of the single channel pixel intensities
+    v = np.median(image)
+    # Compute the upper and lower thresholds using the computed median.
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
+    # Compute the edge image.
+    edge = cv2.Canny(image, lower, upper)
+    # return the edged image
+    return edge
+
+
 # if __name__ == '__main__':
+    # For testing.
